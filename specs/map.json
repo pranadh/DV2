@@ -1,0 +1,78 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Australian airports with scheduled service",
+  "width": "container",
+  "height": 480,
+  "projection": {
+    "type": "mercator",
+    "center": [134, -27],
+    "scale": 850
+  },
+  "layer": [
+    {
+      "data": {
+        "url": "https://raw.githubusercontent.com/rowanhogan/australian-states/master/states.min.topojson",
+        "format": { "type": "topojson", "feature": "states" }
+      },
+      "mark": {
+        "type": "geoshape",
+        "fill": "#1a2a3a",
+        "stroke": "#2d4a6a",
+        "strokeWidth": 1
+      }
+    },
+    {
+      "data": { "url": "data/au_airports_scheduled.csv" },
+      "transform": [
+        {
+          "calculate": "datum.type === 'large_airport' ? 'Major Airport' : 'Regional Airport'",
+          "as": "airport_category"
+        }
+      ],
+      "mark": {
+        "type": "circle",
+        "opacity": 0.85,
+        "stroke": "#ffffff",
+        "strokeWidth": 0.5
+      },
+      "encoding": {
+        "longitude": { "field": "longitude_deg", "type": "quantitative" },
+        "latitude": { "field": "latitude_deg", "type": "quantitative" },
+        "size": {
+          "field": "airport_category",
+          "type": "nominal",
+          "scale": {
+            "domain": ["Major Airport", "Regional Airport"],
+            "range": [280, 60]
+          },
+          "legend": {
+            "title": "Airport Size",
+            "orient": "bottom-right",
+            "labelColor": "#ccd6e0",
+            "titleColor": "#ccd6e0",
+            "symbolFillColor": "#f4a261"
+          }
+        },
+        "color": {
+          "field": "airport_category",
+          "type": "nominal",
+          "scale": {
+            "domain": ["Major Airport", "Regional Airport"],
+            "range": ["#f4a261", "#457b9d"]
+          },
+          "legend": null
+        },
+        "tooltip": [
+          { "field": "name", "title": "Airport" },
+          { "field": "iata_code", "title": "Code" },
+          { "field": "municipality", "title": "City" },
+          { "field": "airport_category", "title": "Type" }
+        ]
+      }
+    }
+  ],
+  "config": {
+    "background": "#0d1b2a",
+    "view": { "stroke": null }
+  }
+}

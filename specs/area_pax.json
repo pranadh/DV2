@@ -1,0 +1,93 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Total Australian domestic passengers per month 2000–2026",
+  "width": "container",
+  "height": 280,
+  "data": { "url": "data/monthly_domestic.csv" },
+  "transform": [
+    { "filter": "datum.pax_tob != null && datum.pax_tob > 0" },
+    {
+      "calculate": "{'Jan':1,'Feb':2,'Mar':3,'Apr':4,'May':5,'Jun':6,'Jul':7,'Aug':8,'Sep':9,'Oct':10,'Nov':11,'Dec':12}[datum.month]",
+      "as": "month_num"
+    },
+    {
+      "calculate": "datetime(datum.year, datum.month_num - 1, 1)",
+      "as": "date"
+    },
+    {
+      "calculate": "datum.pax_tob / 1000000",
+      "as": "pax_millions"
+    }
+  ],
+  "layer": [
+    {
+      "mark": {
+        "type": "area",
+        "line": { "color": "#f4a261", "strokeWidth": 1.5 },
+        "color": {
+          "x1": 0, "y1": 0, "x2": 0, "y2": 1,
+          "gradient": "linear",
+          "stops": [
+            { "offset": 0, "color": "#f4a261" },
+            { "offset": 1, "color": "#0d1b2a" }
+          ]
+        },
+        "interpolate": "monotone",
+        "opacity": 0.7
+      },
+      "encoding": {
+        "x": {
+          "field": "date",
+          "type": "temporal",
+          "title": null,
+          "axis": {
+            "labelColor": "#8aa4b8",
+            "gridColor": "#1e3045",
+            "domainColor": "#2d4a6a"
+          }
+        },
+        "y": {
+          "field": "pax_millions",
+          "type": "quantitative",
+          "title": "Passengers (millions)",
+          "axis": {
+            "labelColor": "#8aa4b8",
+            "titleColor": "#8aa4b8",
+            "gridColor": "#1e3045",
+            "domainColor": "#2d4a6a",
+            "format": ".1f"
+          }
+        },
+        "tooltip": [
+          { "field": "date", "type": "temporal", "title": "Month", "format": "%b %Y" },
+          { "field": "pax_millions", "title": "Passengers (M)", "format": ".2f" }
+        ]
+      }
+    },
+    {
+      "mark": {
+        "type": "text",
+        "align": "center",
+        "dy": -10,
+        "fontSize": 11,
+        "color": "#e63946",
+        "fontWeight": "bold"
+      },
+      "data": {
+        "values": [
+          { "date": "2001-09-15", "pax_millions": 4.8, "label": "Ansett\ncollapse" },
+          { "date": "2020-06-15", "pax_millions": 1.8, "label": "COVID-19\nborder closures" }
+        ]
+      },
+      "encoding": {
+        "x": { "field": "date", "type": "temporal" },
+        "y": { "field": "pax_millions", "type": "quantitative" },
+        "text": { "field": "label" }
+      }
+    }
+  ],
+  "config": {
+    "background": "#0d1b2a",
+    "view": { "stroke": null }
+  }
+}

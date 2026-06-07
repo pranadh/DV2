@@ -1,0 +1,92 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Australian domestic air fare index by class, CPI-adjusted",
+  "width": "container",
+  "height": 320,
+  "data": { "url": "data/fares_long.csv" },
+  "layer": [
+    {
+      "mark": { "type": "rect", "opacity": 0.08, "color": "#e63946" },
+      "data": {
+        "values": [
+          { "start": "2001-09-01", "end": "2002-06-01", "label": "Ansett collapse" },
+          { "start": "2020-03-01", "end": "2021-12-01", "label": "COVID-19" }
+        ]
+      },
+      "encoding": {
+        "x": { "field": "start", "type": "temporal" },
+        "x2": { "field": "end" }
+      }
+    },
+    {
+      "mark": { "type": "line", "strokeWidth": 2, "interpolate": "monotone" },
+      "encoding": {
+        "x": {
+          "field": "date",
+          "type": "temporal",
+          "title": null,
+          "axis": { "labelColor": "#8aa4b8", "gridColor": "#1e3045", "domainColor": "#2d4a6a" }
+        },
+        "y": {
+          "field": "index_value",
+          "type": "quantitative",
+          "title": "Fare Index (2009 = 100, CPI-adjusted)",
+          "axis": {
+            "labelColor": "#8aa4b8",
+            "titleColor": "#8aa4b8",
+            "gridColor": "#1e3045",
+            "domainColor": "#2d4a6a"
+          }
+        },
+        "color": {
+          "field": "fare_class",
+          "type": "nominal",
+          "title": "Fare Class",
+          "scale": {
+            "domain": ["Business", "Restricted Economy", "Best Discount"],
+            "range": ["#f4a261", "#2a9d8f", "#e9c46a"]
+          },
+          "legend": {
+            "orient": "top-left",
+            "labelColor": "#ccd6e0",
+            "titleColor": "#ccd6e0",
+            "fillColor": "#0d1b2a",
+            "padding": 8,
+            "cornerRadius": 4
+          }
+        },
+        "tooltip": [
+          { "field": "date", "type": "temporal", "title": "Month", "format": "%b %Y" },
+          { "field": "fare_class", "title": "Class" },
+          { "field": "index_value", "title": "Index", "format": ".1f" }
+        ]
+      }
+    },
+    {
+      "mark": {
+        "type": "text",
+        "align": "left",
+        "dx": 4,
+        "dy": -6,
+        "fontSize": 10,
+        "color": "#e63946",
+        "opacity": 0.7
+      },
+      "data": {
+        "values": [
+          { "date": "2001-09-01", "label": "Ansett\ncollapse", "y": 140 },
+          { "date": "2020-03-01", "label": "COVID-19", "y": 140 }
+        ]
+      },
+      "encoding": {
+        "x": { "field": "date", "type": "temporal" },
+        "y": { "field": "y", "type": "quantitative" },
+        "text": { "field": "label" }
+      }
+    }
+  ],
+  "config": {
+    "background": "#0d1b2a",
+    "view": { "stroke": null }
+  }
+}

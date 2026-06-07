@@ -1,0 +1,80 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Annual passenger growth for Australia's top 5 routes since 2014",
+  "width": "container",
+  "height": 300,
+  "data": { "url": "data/route_annual.csv" },
+  "transform": [
+    {
+      "filter": "datum.route == 'MEL-SYD' || datum.route == 'BNE-SYD' || datum.route == 'BNE-MEL' || datum.route == 'OOL-SYD' || datum.route == 'ADL-MEL'"
+    },
+    { "filter": "datum.annual_pax != null && datum.annual_pax > 0" },
+    { "calculate": "datum.annual_pax / 1000000", "as": "pax_millions" }
+  ],
+  "params": [
+    {
+      "name": "route_hover",
+      "select": { "type": "point", "fields": ["route"], "on": "mouseover" }
+    }
+  ],
+  "mark": {
+    "type": "line",
+    "point": { "filled": true, "size": 50 },
+    "strokeWidth": 2,
+    "interpolate": "monotone"
+  },
+  "encoding": {
+    "x": {
+      "field": "year",
+      "type": "ordinal",
+      "title": null,
+      "axis": {
+        "labelColor": "#8aa4b8",
+        "gridColor": "#1e3045",
+        "domainColor": "#2d4a6a"
+      }
+    },
+    "y": {
+      "field": "pax_millions",
+      "type": "quantitative",
+      "title": "Annual Passengers (millions)",
+      "axis": {
+        "labelColor": "#8aa4b8",
+        "titleColor": "#8aa4b8",
+        "gridColor": "#1e3045",
+        "domainColor": "#2d4a6a",
+        "format": ".1f"
+      }
+    },
+    "color": {
+      "field": "route",
+      "type": "nominal",
+      "title": "Route",
+      "scale": {
+        "domain": ["MEL-SYD", "BNE-SYD", "BNE-MEL", "OOL-SYD", "ADL-MEL"],
+        "range": ["#f4a261", "#2a9d8f", "#e9c46a", "#457b9d", "#e63946"]
+      },
+      "legend": {
+        "labelColor": "#ccd6e0",
+        "titleColor": "#ccd6e0",
+        "fillColor": "#0d1b2a",
+        "padding": 8,
+        "cornerRadius": 4,
+        "orient": "top-left"
+      }
+    },
+    "opacity": {
+      "condition": { "param": "route_hover", "value": 1 },
+      "value": 0.3
+    },
+    "tooltip": [
+      { "field": "route", "title": "Route" },
+      { "field": "year", "title": "Year" },
+      { "field": "pax_millions", "title": "Passengers (M)", "format": ".2f" }
+    ]
+  },
+  "config": {
+    "background": "#0d1b2a",
+    "view": { "stroke": null }
+  }
+}

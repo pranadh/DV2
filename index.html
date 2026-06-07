@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Australia Takes Flight — Domestic Air Travel</title>
+
+  <!-- Vega-Lite -->
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+
+  <!-- Google Fonts: editorial display + body pairing -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─── TOKENS ─────────────────────────────────────── */
+    :root {
+      --bg:          #0d1b2a;
+      --bg-card:     #111f30;
+      --bg-card2:    #162536;
+      --border:      #1e3045;
+      --accent:      #f4a261;
+      --accent2:     #2a9d8f;
+      --accent3:     #e9c46a;
+      --text:        #ccd6e0;
+      --text-muted:  #6e8fa8;
+      --heading:     #f0f4f8;
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body:    'Source Serif 4', Georgia, serif;
+    }
+
+    /* ─── RESET & BASE ───────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-weight: 300;
+      font-size: 1.05rem;
+      line-height: 1.75;
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    /* ─── HERO ───────────────────────────────────────── */
+    .hero {
+      padding: 80px 0 60px;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+
+    .hero-tag {
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      font-weight: 400;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      font-weight: 900;
+      color: var(--heading);
+      line-height: 1.1;
+      max-width: 760px;
+      margin-bottom: 24px;
+    }
+
+    .hero h1 span {
+      color: var(--accent);
+    }
+
+    .hero-intro {
+      max-width: 680px;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      margin-bottom: 36px;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+      margin-top: 32px;
+    }
+
+    .stat-block {
+      border-left: 3px solid var(--accent);
+      padding-left: 16px;
+    }
+
+    .stat-number {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--heading);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* ─── SECTION LAYOUT ─────────────────────────────── */
+    section {
+      padding: 72px 0 40px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    section:last-of-type { border-bottom: none; }
+
+    .section-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: 12px;
+    }
+
+    section h2 {
+      font-family: var(--font-display);
+      font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+      font-weight: 700;
+      color: var(--heading);
+      line-height: 1.2;
+      margin-bottom: 16px;
+      max-width: 640px;
+    }
+
+    .section-body {
+      color: var(--text-muted);
+      max-width: 640px;
+      margin-bottom: 36px;
+      font-size: 1rem;
+    }
+
+    /* ─── CHART CARDS ────────────────────────────────── */
+    .chart-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 28px 28px 20px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .chart-title {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--heading);
+      margin-bottom: 4px;
+    }
+
+    .chart-caption {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+
+    .chart-container {
+      width: 100%;
+      min-height: 260px;
+    }
+
+    /* ─── TWO-COLUMN GRID ────────────────────────────── */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 760px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    /* ─── INSIGHT CALLOUT ────────────────────────────── */
+    .callout {
+      background: var(--bg-card2);
+      border-left: 4px solid var(--accent);
+      border-radius: 0 6px 6px 0;
+      padding: 20px 24px;
+      margin: 24px 0;
+      font-size: 0.97rem;
+      color: var(--text);
+    }
+
+    .callout strong { color: var(--accent); }
+
+    /* ─── PULL QUOTE ─────────────────────────────────── */
+    .pull-quote {
+      font-family: var(--font-display);
+      font-size: clamp(1.2rem, 2.5vw, 1.7rem);
+      font-weight: 700;
+      color: var(--accent3);
+      border-top: 2px solid var(--border);
+      border-bottom: 2px solid var(--border);
+      padding: 28px 0;
+      margin: 48px 0;
+      line-height: 1.35;
+      max-width: 700px;
+    }
+
+    /* ─── FOOTER ─────────────────────────────────────── */
+    footer {
+      padding: 48px 0 0;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+    }
+
+    footer h3 {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    footer a {
+      color: var(--accent2);
+      text-decoration: none;
+    }
+
+    footer a:hover { text-decoration: underline; }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    @media (max-width: 600px) {
+      .footer-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ─── VEGA EMBED OVERRIDES ───────────────────────── */
+    .vega-embed summary { display: none !important; }
+    .vega-embed canvas { width: 100% !important; }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- HERO                                            -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <header class="hero">
+    <p class="hero-tag">Data Visualisation — FIT2179 &nbsp;·&nbsp; Semester 1, 2026 &nbsp;·&nbsp; Pranadh Anoop (36145424)</p>
+    <h1>Australia<br /><span>Takes Flight</span></h1>
+    <p class="hero-intro">
+      Millions of Australians board domestic flights every month — from the short hop between
+      Melbourne and Sydney to the epic Perth–Sydney crossing. This visualisation explores where
+      we fly, how much we pay, and how the industry has changed over three decades.
+    </p>
+    <div class="hero-stats">
+      <div class="stat-block">
+        <div class="stat-number">8M</div>
+        <div class="stat-label">MEL–SYD passengers in 2024</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-number">117</div>
+        <div class="stat-label">Scheduled airports across Australia</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-number">83%</div>
+        <div class="stat-label">Average seat load factor in 2024</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-number">34yr</div>
+        <div class="stat-label">Of fare data tracked since 1992</div>
+      </div>
+    </div>
+  </header>
+
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- SECTION 1 — THE NETWORK                        -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section id="network">
+    <p class="section-label">Section 1 — The Network</p>
+    <h2>Australia's Domestic Air Network</h2>
+    <p class="section-body">
+      Scheduled domestic flights connect 117 airports across the continent — from major capital
+      city hubs to remote regional airstrips that serve as lifelines for outback communities.
+      Larger orange circles mark major international-grade airports. Hover over any point for details.
+    </p>
+
+    <!-- Chart 1: Map -->
+    <div class="chart-card">
+      <div class="chart-title">Scheduled Domestic Airports</div>
+      <div class="chart-caption">Orange = major airports · Blue = regional airports. Source: OurAirports (2026)</div>
+      <div class="chart-container" id="map"></div>
+    </div>
+
+    <div class="callout">
+      <strong>Why geography matters:</strong> Australia's vast distances make flying a necessity
+      rather than a luxury. Perth is further from Sydney (3,284 km) than London is from Moscow.
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- SECTION 2 — BUSY ROUTES                        -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section id="routes">
+    <p class="section-label">Section 2 — Busiest Routes</p>
+    <h2>Where Australians Actually Fly</h2>
+    <p class="section-body">
+      Melbourne–Sydney is by far the world's sixth-busiest air corridor. The top 20 domestic
+      routes accounted for the vast majority of all passenger movements in 2024.
+      Colour shows load factor — how full each flight tends to be.
+    </p>
+
+    <!-- Chart 2: Top routes bar -->
+    <div class="chart-card">
+      <div class="chart-title">Top 20 Domestic Routes by Passengers — 2024</div>
+      <div class="chart-caption">Warmer colour = higher load factor (seats filled). Source: BITRE Domestic Airline Activity</div>
+      <div class="chart-container" id="top_routes"></div>
+    </div>
+
+    <div class="grid-2">
+      <!-- Chart 3: Scatter -->
+      <div class="chart-card">
+        <div class="chart-title">Does Distance Kill Demand?</div>
+        <div class="chart-caption">Route distance vs annual passengers (2024). Trend line in red. Source: BITRE</div>
+        <div class="chart-container" id="scatter"></div>
+      </div>
+
+      <!-- Chart 4: Route growth -->
+      <div class="chart-card">
+        <div class="chart-title">Top 5 Routes — Passenger Growth Since 2014</div>
+        <div class="chart-caption">Hover a line to highlight. Source: BITRE Top Routes</div>
+        <div class="chart-container" id="route_growth"></div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- SECTION 3 — PASSENGERS OVER TIME               -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section id="passengers">
+    <p class="section-label">Section 3 — Passenger Volumes</p>
+    <h2>Two Decades of Turbulence</h2>
+    <p class="section-body">
+      Domestic passenger numbers climbed steadily through the 2000s — then collapsed twice:
+      first with the sudden fall of Ansett Australia in September 2001, then catastrophically
+      during the COVID-19 pandemic in 2020. Recovery has been strong but uneven.
+    </p>
+
+    <!-- Chart 5: Area chart -->
+    <div class="chart-card">
+      <div class="chart-title">Total Domestic Passengers per Month — 2000 to 2026</div>
+      <div class="chart-caption">Includes all scheduled domestic airlines. Source: BITRE Monthly Domestic Airline Activity</div>
+      <div class="chart-container" id="area_pax"></div>
+    </div>
+
+    <div class="pull-quote">
+      "At the height of COVID-19 lockdowns in 2020, domestic passenger numbers fell to
+       levels not seen since the 1980s — fewer people were flying than in 1977."
+    </div>
+
+    <!-- Chart 6: Heatmap -->
+    <div class="chart-card">
+      <div class="chart-title">Monthly Passenger Heatmap — 2005 to 2025</div>
+      <div class="chart-caption">
+        Each cell = one calendar month. Darker orange = more passengers.
+        The pale strip in 2020–21 shows the COVID collapse clearly. Source: BITRE
+      </div>
+      <div class="chart-container" id="heatmap"></div>
+    </div>
+
+    <!-- Chart 7: Load factor -->
+    <div class="chart-card">
+      <div class="chart-title">How Full Are Australian Flights?</div>
+      <div class="chart-caption">
+        Passenger load factor = share of seats filled. The dashed line marks 80% — the industry
+        benchmark for a profitable route. Source: BITRE Monthly Domestic Airline Activity
+      </div>
+      <div class="chart-container" id="load_factor"></div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- SECTION 4 — FARES                              -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section id="fares">
+    <p class="section-label">Section 4 — What We Pay</p>
+    <h2>The Price of a Seat</h2>
+    <p class="section-body">
+      BITRE tracks a monthly fare index across three cabin classes, adjusted for inflation.
+      An index of 100 represents the 2009 baseline price. Falling index values mean fares have
+      become cheaper in real terms — good news for budget travellers.
+    </p>
+
+    <!-- Chart 8: Fare trend line -->
+    <div class="chart-card">
+      <div class="chart-title">Domestic Fare Index by Class — 2000 to 2026 (CPI-adjusted)</div>
+      <div class="chart-caption">
+        Index = 100 in 2009. Shaded regions mark major disruptions.
+        Source: BITRE Domestic Air Fares Index
+      </div>
+      <div class="chart-container" id="fares_trend"></div>
+    </div>
+
+    <div class="callout">
+      <strong>Key finding:</strong> Best discount fares have fallen dramatically in real terms
+      since 2009 — meaning budget air travel is genuinely more affordable for Australians today
+      than it was 15 years ago, despite rising living costs overall.
+    </div>
+
+    <div class="grid-2">
+      <!-- Chart 9: Peak vs off-peak connected dot plot -->
+      <div class="chart-card">
+        <div class="chart-title">When to Fly Cheap — Peak vs Winter</div>
+        <div class="chart-caption">
+          Best discount fare index: mid-year (Jun–Aug) vs summer (Dec–Jan).
+          Higher index = relatively more expensive. Source: BITRE
+        </div>
+        <div class="chart-container" id="peak_vs_offpeak"></div>
+      </div>
+
+      <!-- Chart 10: Seasonality -->
+      <div class="chart-card">
+        <div class="chart-title">Seasonality — When Do Routes Get Busy?</div>
+        <div class="chart-caption">
+          Average monthly passengers 2018–2024. Click a route in the legend to highlight it.
+          Source: BITRE Top Routes
+        </div>
+        <div class="chart-container" id="seasonality"></div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- FOOTER                                         -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <h3>Data Sources</h3>
+        <p>
+          <strong>BITRE — Bureau of Infrastructure and Transport Research Economics</strong><br />
+          Domestic Air Fares Index (1992–2026):
+          <a href="https://www.bitre.gov.au/statistics/aviation/air_fares" target="_blank">bitre.gov.au</a><br />
+          Domestic Airline Activity — Top Routes:
+          <a href="https://www.bitre.gov.au/publications/ongoing/domestic_airline_activity-time_series" target="_blank">bitre.gov.au</a><br />
+          Domestic Airline Performance Monthly:
+          <a href="https://www.bitre.gov.au/publications/ongoing/domestic_airline_activity-monthly_publications" target="_blank">bitre.gov.au</a>
+        </p>
+        <br />
+        <p>
+          <strong>OurAirports</strong><br />
+          Global Airport Database (2026):
+          <a href="https://ourairports.com/data/" target="_blank">ourairports.com</a>
+        </p>
+      </div>
+      <div>
+        <h3>Authorship &amp; Tools</h3>
+        <p>
+          Visualisation designed and built for FIT2179 Data Visualisation,
+          Monash University, Semester 1 2026.<br /><br />
+          Built with <strong>Vega-Lite v5</strong> for all charts and maps.<br />
+          Data processing performed in <strong>Python (pandas)</strong>.<br />
+          Layout and typography in <strong>HTML/CSS</strong>.<br /><br />
+          AI tools (Claude by Anthropic) were used to assist with data
+          cleaning, Vega-Lite specification drafting, and HTML layout.
+          All visualisation design decisions, story structure, and domain
+          interpretation are the author's own.
+        </p>
+        <br />
+        <p style="color: var(--text-muted);">Published June 2026</p>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- VEGA-EMBED CALLS                               -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <script>
+    const embedOpts = {
+      actions: false,
+      renderer: 'canvas',
+      theme: 'dark'
+    };
+
+    vegaEmbed('#map',            'specs/map.json',            embedOpts);
+    vegaEmbed('#top_routes',     'specs/top_routes_bar.json', embedOpts);
+    vegaEmbed('#scatter',        'specs/scatter_distance.json',embedOpts);
+    vegaEmbed('#route_growth',   'specs/route_growth.json',   embedOpts);
+    vegaEmbed('#area_pax',       'specs/area_pax.json',       embedOpts);
+    vegaEmbed('#heatmap',        'specs/heatmap.json',        embedOpts);
+    vegaEmbed('#load_factor',    'specs/load_factor_line.json',embedOpts);
+    vegaEmbed('#fares_trend',    'specs/fares_trend.json',    embedOpts);
+    vegaEmbed('#peak_vs_offpeak','specs/peak_vs_offpeak.json',embedOpts);
+    vegaEmbed('#seasonality',    'specs/seasonality.json',    embedOpts);
+  </script>
+
+</body>
+</html>

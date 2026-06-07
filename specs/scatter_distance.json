@@ -1,0 +1,102 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Does longer distance mean fewer passengers? Route distance vs annual passengers in 2024",
+  "width": "container",
+  "height": 340,
+  "data": { "url": "data/route_annual.csv" },
+  "transform": [
+    { "filter": "datum.year == 2024" },
+    { "filter": "datum.annual_pax != null && datum.annual_pax > 0 && datum.distance_km != null" },
+    { "calculate": "datum.annual_pax / 1000000", "as": "pax_millions" },
+    {
+      "regression": "pax_millions",
+      "on": "distance_km",
+      "as": ["distance_km", "trend"]
+    }
+  ],
+  "layer": [
+    {
+      "data": { "url": "data/route_annual.csv" },
+      "transform": [
+        { "filter": "datum.year == 2024" },
+        { "filter": "datum.annual_pax != null && datum.annual_pax > 0 && datum.distance_km != null" },
+        { "calculate": "datum.annual_pax / 1000000", "as": "pax_millions" }
+      ],
+      "mark": {
+        "type": "circle",
+        "opacity": 0.85,
+        "stroke": "#0d1b2a",
+        "strokeWidth": 0.5
+      },
+      "encoding": {
+        "x": {
+          "field": "distance_km",
+          "type": "quantitative",
+          "title": "Route Distance (km)",
+          "axis": {
+            "labelColor": "#8aa4b8",
+            "titleColor": "#8aa4b8",
+            "gridColor": "#1e3045",
+            "domainColor": "#2d4a6a"
+          }
+        },
+        "y": {
+          "field": "pax_millions",
+          "type": "quantitative",
+          "title": "Annual Passengers (millions)",
+          "axis": {
+            "labelColor": "#8aa4b8",
+            "titleColor": "#8aa4b8",
+            "gridColor": "#1e3045",
+            "domainColor": "#2d4a6a",
+            "format": ".1f"
+          }
+        },
+        "color": {
+          "field": "avg_load_factor",
+          "type": "quantitative",
+          "title": "Load Factor (%)",
+          "scale": {
+            "domain": [50, 90],
+            "range": ["#1d4e89", "#f4a261"]
+          },
+          "legend": {
+            "labelColor": "#ccd6e0",
+            "titleColor": "#ccd6e0",
+            "gradientLength": 100,
+            "orient": "top-right"
+          }
+        },
+        "size": {
+          "field": "pax_millions",
+          "type": "quantitative",
+          "scale": { "range": [30, 400] },
+          "legend": null
+        },
+        "tooltip": [
+          { "field": "route", "title": "Route" },
+          { "field": "distance_km", "title": "Distance (km)", "format": "," },
+          { "field": "pax_millions", "title": "Passengers (M)", "format": ".2f" },
+          { "field": "avg_load_factor", "title": "Load Factor (%)", "format": ".1f" }
+        ]
+      }
+    },
+    {
+      "mark": {
+        "type": "line",
+        "color": "#e63946",
+        "strokeDash": [6, 4],
+        "strokeWidth": 1.5,
+        "opacity": 0.6
+      },
+      "encoding": {
+        "x": { "field": "distance_km", "type": "quantitative" },
+        "y": { "field": "trend", "type": "quantitative" }
+      }
+    }
+  ],
+  "config": {
+    "background": "#0d1b2a",
+    "view": { "stroke": null }
+  }
+}

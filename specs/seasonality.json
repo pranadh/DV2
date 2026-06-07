@@ -1,0 +1,96 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Monthly passenger seasonality for top 10 routes — interactive route selector",
+  "width": "container",
+  "height": 300,
+  "data": { "url": "data/top10_routes_monthly.csv" },
+  "transform": [
+    { "filter": "datum.pax_clean != null && datum.pax_clean > 0" },
+    { "filter": "datum.year >= 2018 && datum.year <= 2024" },
+    {
+      "aggregate": [{ "op": "mean", "field": "pax_clean", "as": "avg_pax" }],
+      "groupby": ["route", "month"]
+    },
+    {
+      "calculate": "datum.avg_pax / 1000",
+      "as": "avg_pax_thousands"
+    }
+  ],
+  "params": [
+    {
+      "name": "route_select",
+      "select": { "type": "point", "fields": ["route"] },
+      "bind": "legend"
+    }
+  ],
+  "mark": {
+    "type": "line",
+    "point": { "filled": true, "size": 60 },
+    "strokeWidth": 2,
+    "interpolate": "monotone"
+  },
+  "encoding": {
+    "x": {
+      "field": "month",
+      "type": "ordinal",
+      "title": "Month",
+      "axis": {
+        "labelColor": "#8aa4b8",
+        "titleColor": "#8aa4b8",
+        "gridColor": "#1e3045",
+        "domainColor": "#2d4a6a",
+        "values": [1,2,3,4,5,6,7,8,9,10,11,12],
+        "labelExpr": "['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][datum.value-1]"
+      }
+    },
+    "y": {
+      "field": "avg_pax_thousands",
+      "type": "quantitative",
+      "title": "Avg Monthly Passengers (thousands)",
+      "axis": {
+        "labelColor": "#8aa4b8",
+        "titleColor": "#8aa4b8",
+        "gridColor": "#1e3045",
+        "domainColor": "#2d4a6a",
+        "format": ".0f"
+      }
+    },
+    "color": {
+      "field": "route",
+      "type": "nominal",
+      "title": "Route (click to highlight)",
+      "scale": {
+        "scheme": "tableau10"
+      },
+      "legend": {
+        "labelColor": "#ccd6e0",
+        "titleColor": "#ccd6e0",
+        "fillColor": "#0d1b2a",
+        "padding": 8,
+        "cornerRadius": 4
+      }
+    },
+    "opacity": {
+      "condition": { "param": "route_select", "value": 1 },
+      "value": 0.15
+    },
+    "strokeWidth": {
+      "condition": { "param": "route_select", "value": 2.5 },
+      "value": 1
+    },
+    "tooltip": [
+      { "field": "route", "title": "Route" },
+      {
+        "field": "month",
+        "type": "ordinal",
+        "title": "Month",
+        "labelExpr": "['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][datum.value-1]"
+      },
+      { "field": "avg_pax_thousands", "title": "Avg Passengers (thousands)", "format": ".0f" }
+    ]
+  },
+  "config": {
+    "background": "#0d1b2a",
+    "view": { "stroke": null }
+  }
+}

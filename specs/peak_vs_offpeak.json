@@ -1,0 +1,81 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Peak vs off-peak best discount fare index by year — connected dot plot",
+  "width": "container",
+  "height": 340,
+  "data": { "url": "data/air_fares.csv" },
+  "transform": [
+    { "filter": "datum.best_discount != null && datum.year >= 2010 && datum.year <= 2025" },
+    {
+      "calculate": "datum.month >= 6 && datum.month <= 8 ? 'Peak (Jun–Aug)' : datum.month == 12 || datum.month == 1 ? 'Peak (Dec–Jan)' : 'Off-peak'",
+      "as": "season"
+    },
+    { "filter": "datum.season !== 'Off-peak'" },
+    {
+      "aggregate": [{ "op": "mean", "field": "best_discount", "as": "avg_fare" }],
+      "groupby": ["year", "season"]
+    }
+  ],
+  "layer": [
+    {
+      "mark": { "type": "line", "color": "#2d4a6a", "strokeWidth": 1.5 },
+      "encoding": {
+        "x": {
+          "field": "year",
+          "type": "ordinal",
+          "title": null,
+          "axis": {
+            "labelColor": "#8aa4b8",
+            "gridColor": "#1e3045",
+            "domainColor": "#2d4a6a"
+          }
+        },
+        "y": {
+          "field": "avg_fare",
+          "type": "quantitative",
+          "title": "Best Discount Fare Index (CPI-adjusted)",
+          "axis": {
+            "labelColor": "#8aa4b8",
+            "titleColor": "#8aa4b8",
+            "gridColor": "#1e3045",
+            "domainColor": "#2d4a6a"
+          }
+        },
+        "detail": { "field": "year" }
+      }
+    },
+    {
+      "mark": { "type": "point", "filled": true, "size": 80, "opacity": 1 },
+      "encoding": {
+        "x": { "field": "year", "type": "ordinal" },
+        "y": { "field": "avg_fare", "type": "quantitative" },
+        "color": {
+          "field": "season",
+          "type": "nominal",
+          "scale": {
+            "domain": ["Peak (Jun–Aug)", "Peak (Dec–Jan)"],
+            "range": ["#2a9d8f", "#f4a261"]
+          },
+          "legend": {
+            "title": "Period",
+            "labelColor": "#ccd6e0",
+            "titleColor": "#ccd6e0",
+            "fillColor": "#0d1b2a",
+            "padding": 8,
+            "cornerRadius": 4,
+            "orient": "top-left"
+          }
+        },
+        "tooltip": [
+          { "field": "year", "title": "Year" },
+          { "field": "season", "title": "Season" },
+          { "field": "avg_fare", "title": "Fare Index", "format": ".1f" }
+        ]
+      }
+    }
+  ],
+  "config": {
+    "background": "#0d1b2a",
+    "view": { "stroke": null }
+  }
+}
